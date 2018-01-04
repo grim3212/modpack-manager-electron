@@ -1,0 +1,94 @@
+<body>
+  <header (click)="selectedPack = null">
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand text-success">Modpack Manager</a>
+      <button class="navbar-toggler" type="button" (click)="navbarCollapsed = !navbarCollapsed" [attr.aria-expanded]="!navbarCollapsed" aria-controls="navbarContent" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse" [collapse]="navbarCollapsed">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <button type="button" class="btn btn-primary" (click)="openInstall(installTemplate)">Install Pack</button>
+          </li>
+
+          <li class="nav-item">
+            <button type="button" class="btn btn-primary" (click)="setInstanceFolder()">Instance Folder</button>
+          </li>
+
+          <li class="nav-item">
+            <button type="button" class="btn btn-primary" (click)="downloadTest()">Download</button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Begin page content -->
+  <div class="container mh-100" (click)="selectedPack = null">
+    <div class="row align-items-center">
+      <div *ngFor="let pack of modPacks" class="col" (click)="selectedPack = pack; $event.stopPropagation();" [ngClass]="{'selected': selectedPack == pack }">
+        {{pack.name}} -- {{pack.mods.size}} -- {{pack.author}} -- {{pack.version}} -- {{pack.mcVersion}} -- {{pack.forgeVersion}}
+        <button type="button" class="btn btn-primary" (click)="updatePack(updateTemplate)">Update Pack</button>
+      </div>
+    </div>
+
+    <div *ngFor="let alert of alerts">
+      <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout">{{ alert.msg }}</alert>
+    </div>
+  </div>
+
+  <footer class="footer" (click)="selectedPack = null">
+    <div class="container">
+      <span class="text-muted">Place sticky footer content here.</span>
+    </div>
+  </footer>
+</body>
+
+<ng-template #installTemplate>
+  <div class="modal-body text-center">
+    <form>
+      <div class="form-group row">
+        <label for="packName" class="col-sm-2 col-form-label">Name:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="packName" placeholder="Pack Name" #installName>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="packUrl" class="col-sm-2 col-form-label">Url:</label>
+        <div class="input-group col-sm-10">
+          <input type="text" class="form-control" id="packUrl" placeholder="Pack Url" #installUrl>
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" (click)="chooseZipFile(installUrl, installName)">...</button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+    <hr />
+
+    <button type="button" class="btn btn-primary" (click)="confirmInstall(installName.value, installUrl.value)">Create</button>
+    <button type="button" class="btn btn-danger" (click)="declineInstall()">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #updateTemplate>
+  <div class="modal-body text-center">
+    <div *ngIf="selectedPack">Updating {{selectedPack.name}}</div>
+
+    <div class="form-group row">
+      <label for="packUrl" class="col-sm-2 col-form-label">Url:</label>
+      <div class="input-group col-sm-10">
+        <input type="text" class="form-control" id="packUrl" placeholder="Pack Url" #updateUrl>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" (click)="chooseZipFile(updateUrl)">...</button>
+        </div>
+      </div>
+    </div>
+    <hr />
+
+    <button type="button" class="btn btn-primary" (click)="confirmUpdate(updateUrl.value)">Update</button>
+    <button type="button" class="btn btn-danger" (click)="declineUpdate()">Cancel</button>
+  </div>
+</ng-template>
