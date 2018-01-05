@@ -1,11 +1,17 @@
 {
   "productName": "modpack-manager",
+  "publish": [{
+             "provider": "github",
+             "owner": "grim3212",
+             "repo": "modpack-manager"
+  }],
   "directories": {
     "app": "dist",
     "output": "app-builds"
   },
   "win": {
     "icon": "dist/favicon",
+	"publish": ["github"],
     "target": [
       "portable"
     ]
