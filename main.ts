@@ -1,5 +1,7 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
+
+import * as localShortcuts from 'electron-localshortcut';
 import * as path from 'path';
 import * as log from 'electron-log';
 
@@ -26,8 +28,12 @@ function createWindow() {
     x: 0,
     y: 0,
     width: size.width,
-    height: size.height
+    height: size.height,
+    minWidth: 800,
+    minHeight: 600
   });
+
+  win.setMenu(null);
 
   // and load the index.html of the app.
   win.loadURL('file://' + __dirname + '/index.html');
@@ -49,6 +55,12 @@ function createWindow() {
 function sendStatusToWindow(text) {
   log.info(text);
   win.webContents.send('message', text);
+}
+
+function registerShortcuts() {
+  localShortcuts.register('Ctrl+Shift+I', () => {
+    win.toggleDevTools();
+  });
 }
 
 try {
@@ -90,6 +102,8 @@ try {
   app.on('ready', () => {
     createWindow();
 
+    registerShortcuts();
+
     //Check if any update exists
     autoUpdater.checkForUpdates();
   });
@@ -115,5 +129,3 @@ try {
   // Catch Error
   // throw e;
 }
-
-
