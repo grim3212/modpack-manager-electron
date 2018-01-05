@@ -1,10 +1,12 @@
 {
   "productName": "modpack-manager",
-  "publish": [{
-             "provider": "github",
-             "owner": "grim3212",
-             "repo": "modpack-manager"
-  }],
+  "publish": [
+		{
+            "provider": "github",
+            "owner": "grim3212",
+            "repo": "modpack-manager"
+		}
+  ],
   "directories": {
     "app": "dist",
     "output": "app-builds"
@@ -13,7 +15,16 @@
     "icon": "dist/favicon",
 	"publish": ["github"],
     "target": [
-      "portable"
+      {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      },
+	  {
+        "target": "portable"
+      }
     ]
   },
   "mac": {
