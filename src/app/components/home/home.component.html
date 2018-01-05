@@ -1,5 +1,5 @@
 <body>
-  <header (click)="selectedPack = null">
+  <header>
     <!-- Fixed navbar -->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand text-success">Modpack Manager</a>
@@ -25,20 +25,44 @@
   </header>
 
   <!-- Begin page content -->
-  <div class="container mh-100" (click)="selectedPack = null">
-    <div class="row align-items-center">
-      <div *ngFor="let pack of modPacks" class="col" (click)="selectedPack = pack; $event.stopPropagation();" [ngClass]="{'selected': selectedPack == pack }">
-        {{pack.name}} -- {{pack.mods.size}} -- {{pack.author}} -- {{pack.version}} -- {{pack.mcVersion}} -- {{pack.forgeVersion}}
-        <button type="button" class="btn btn-primary" (click)="updatePack(updateTemplate)">Update Pack</button>
-      </div>
-    </div>
-
+  <div class="container mh-100">
     <div *ngFor="let alert of alerts">
       <alert [type]="alert.type" [dismissOnTimeout]="alert.timeout">{{ alert.msg }}</alert>
     </div>
+
+    <!--<div *ngFor="let row of buildPartArray(modPacks, 3); let i = index" class="row">
+      <div *ngFor="let pack of row" class="col-md-4">
+        <h2>{{part.name}}</h2>
+        <span [innerHTML]="part.info"></span>
+        <br>
+        <a class="btn btn-secondary" routerLink="/grim-pack/{{part.id}}" role="button">View details &raquo;</a>
+      </div>
+    </div>-->
+
+    <div class="card-columns">
+      <div *ngFor="let pack of modPacks" class="card" (auxclick)="$event.preventDefault(); rightClick($event, dropdown);">
+        <div dropdown class="text-right float-right" placement="bottom right" container="body" #dropdown="bs-dropdown">
+          <button class="btn btn-primary" dropdownToggle type="button">
+            ...
+          </button>
+          <ul *dropdownMenu class="dropdown-menu dropdown-menu-right">
+            <li><a class="dropdown-item" (click)="updatePack(pack, updateTemplate)">Update Pack</a></li>
+          </ul>
+        </div>
+        <img *ngIf="pack.image" class="card-img-top" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">{{pack.name}}</h5>
+          <p class="card-text">This packs contains {{pack.mods.size}} mods. It was made by {{pack.author}}.</p>
+          <p class="card-text"><small class="text-muted"></small></p>
+        </div>
+        <div class="card-footer">
+          <small class="text-muted">Built with Minecraft: {{pack.mcVersion}} and Forge: {{pack.forgeVersion}}</small>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <footer class="footer" (click)="selectedPack = null">
+  <footer class="footer">
     <div class="container">
       <span class="text-muted">Place sticky footer content here.</span>
     </div>

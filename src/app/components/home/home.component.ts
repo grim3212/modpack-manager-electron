@@ -3,6 +3,7 @@ import { ConfigService } from '../../providers/config.service';
 import { ModPackService, ModPack } from '../../providers/modpack.service';
 import { execFile } from 'child_process';
 import { remote } from 'electron';
+import { BsDropdownDirective } from 'ngx-bootstrap/dropdown';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
@@ -30,7 +31,19 @@ export class HomeComponent implements OnInit {
     this.refreshListings();
   }
 
-  private updatePack(modal: TemplateRef<any>) {
+  private log(msg) {
+    console.log(msg);
+  }
+
+  private rightClick(event, dropdown: BsDropdownDirective) {
+    if (event.button == 2) {
+      dropdown.show();
+    }
+  }
+
+  private updatePack(pack: ModPack, modal: TemplateRef<any>) {
+    this.selectedPack = pack;
+
     this.updateModal = this.modalService.show(modal);
   }
 
