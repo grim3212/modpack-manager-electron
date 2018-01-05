@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { ConfigService } from './config.service';
 import { ElectronService } from './electron.service';
 import { remote } from 'electron';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { DownloadComponent } from '../components/download/download.component'
 
 const dlHelper = remote.require('electron-download-manager');
 const zip = remote.require('adm-zip');
@@ -12,8 +15,9 @@ import * as p from 'path';
 
 @Injectable()
 export class ModPackService {
+  private bsModalRef: BsModalRef;
 
-  constructor(private electronService: ElectronService, private config: ConfigService) { }
+  constructor(private electronService: ElectronService, private config: ConfigService, private modalService: BsModalService) { }
 
   public getModPacks(): Promise<ModPack[]> {
     return new Promise<ModPack[]>((resolve, reject) => {
@@ -296,6 +300,12 @@ export class ModPackService {
     }
   }
 
+  createModal(totalFiles: number) {
+    this.bsModalRef = this.modalService.show(DownloadComponent);
+    this.bsModalRef.content.title = 'Download modpack...';
+    this.bsModalRef.content.totalFiles = totalFiles;
+  }
+
   public processModPack(modPack: ModPack, manifest): Promise<ModPack> {
     return new Promise<ModPack>((resolve, reject) => {
 
@@ -319,6 +329,9 @@ export class ModPackService {
           path: p.join(modPack.folderPath, '/minecraft/mods')
         }
 
+        //Show the download modal
+        this.createModal(manifest.files.length);
+
         manifest.files.forEach(file => {
           var curMod = new Mod();
           var url = `https://minecraft.curseforge.com/projects/${file.projectID}/files/${file.fileID}/download`;
@@ -332,26 +345,42 @@ export class ModPackService {
           //Add each mod from the manifest to an object to be bulk downloaded
           dls.downloads.push({
             url: url,
+            onProgress: (progress, item) => {
+              this.bsModalRef.content.progress = progress;
+              this.bsModalRef.content.currentFile = {
+                fileName: item.getFilename(),
+                url: item.getURL(),
+                path: item.getSavePath()
+              };
+
+              //Update modal
+              this.bsModalRef.content.checkChanges();
+            },
             callback: (error, dlItem) => {
               //When each mod finishes downloading
               if (error) {
                 //Add the failed mod to the modpack
                 curMod.success = false;
-                modPack.mods.push(curMod);
 
                 console.log("ERROR: " + curMod.projectID + ' failed to download at ' + dlItem.url);
                 console.log(error);
-                return;
-              }
-              console.log("DONE: " + dlItem.url);
+              } else {
+                console.log("DONE: " + dlItem.url);
 
-              //Finish setting up the mod
-              curMod.success = true;
-              curMod.fileName = dlItem.filename;
-              curMod.size = dlItem.size;
+                //Finish setting up the mod
+                curMod.success = true;
+                curMod.fileName = dlItem.filename;
+                curMod.size = dlItem.size;
+              }
 
               //Add the mod to the modpack
               modPack.mods.push(curMod);
+
+              //Increment the files so we know how many have been completed
+              this.bsModalRef.content.completedFiles += 1;
+
+              //Update modal
+              this.bsModalRef.content.checkChanges();
             }
           });
         });
@@ -362,6 +391,9 @@ export class ModPackService {
           if (error) {
             console.log(`${errors.length} mods were unable to download.`);
           }
+
+          //Close the download modal
+          this.bsModalRef.hide();
 
           return resolve(modPack);
         });

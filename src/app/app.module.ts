@@ -19,6 +19,7 @@ import { ModPackService } from './providers/modpack.service';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
+import { DownloadComponent } from './components/download/download.component';
 
 import { AlertModule } from 'ngx-bootstrap/alert';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
@@ -34,7 +35,11 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    DownloadComponent
+  ],
+  entryComponents: [
+    DownloadComponent
   ],
   imports: [
     BrowserModule,
